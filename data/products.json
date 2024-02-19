@@ -1,0 +1,76 @@
+[
+    {
+        "id":1,
+        "title": "producto1",
+        "description": "description1",
+        "code": "234",
+        "price": 238,
+        "status": true,
+        "stock":37,
+        "category":"productosA"
+
+    },
+    {
+        "id":2,
+        "title": "producto2",
+        "description": "descriptio2",
+        "code": "224",
+        "price": 258,
+        "status": true,
+        "stock":27,
+        "category":"productosA"
+
+    },
+    {
+        "id":3,
+        "title": "producto3",
+        "description": "description3",
+        "code": "225",
+        "price": 2300,
+        "status": true,
+        "stock":17,
+        "category":"productosA"
+
+    },
+    {
+        "id":4,
+        "title": "producto4",
+        "description": "description4",
+        "code": "226",
+        "price": 1235,
+        "status": true,
+        "stock":47,
+        "category":"productosA"
+    },
+    {
+        "id":5,
+        "title": "producto5",
+        "description": "description5",
+        "code": "227",
+        "price": 975,
+        "status": true,
+        "stock":67,
+        "category":"productosB"
+    },
+    {
+        "id":6,
+        "title": "producto6",
+        "description": "description6",
+        "code": "228",
+        "price": 257,
+        "status": true,
+        "stock":87,
+        "category":"productosB"
+    },
+    {
+        "id":7,
+        "title": "producto7",
+        "description": "description7",
+        "code": "229",
+        "price": 777,
+        "status": true,
+        "stock":7,
+        "category":"productosB"
+    
+    }
+]
