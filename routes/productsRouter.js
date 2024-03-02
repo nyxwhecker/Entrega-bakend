@@ -1,11 +1,25 @@
 import { Router } from "express";
 import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
 
 const router = Router()
 
-const productsFilePath = 'C:\\Users\\Nyxwh\\OneDrive\\Escritorio\\Bakend\\Entrega 1\\data\\products.json';
-const products = JSON.parse(fs.readFileSync(productsFilePath, 'utf-8'));
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
+let products;
+//const productsFilePath = `${__dirname}/data/products.json`;
+const productsFilePath = "C:\\Users\\Nyxwh\\OneDrive\\Escritorio\\Bakend\\Entrega 1\\data\\products.json";
+
+
+try {
+  const products = JSON.parse(fs.readFileSync(productsFilePath, 'utf-8'));
+ 
+} catch (error) {
+  console.error('Error al leer el archivo de productos:', error);
+}
 
 router.get("/api/products/", (req,res) => {
     try {
