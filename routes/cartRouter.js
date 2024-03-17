@@ -1,77 +1,45 @@
 import { Router } from "express";
-import { randomUUID }  from "node:crypto";
-import fs, { writeFileSync } from "fs";
+//import { randomUUID }  from "node:crypto";
+//import fs, { writeFileSync } from "fs";
+import CartManager from "../dao/services/cartManager.js"
 
-const router = Router()
-const pathCart = "./data/cart.json"
+const router = Router();
+const cartManager = new CartManager();
 
-router.post("/api/carts/", (req, res) => {
-
-    let carrito = fs.readFileSync(pathCart, "utf-8")
-    let parsedCart = JSON.parse(carrito)
-
-    const ID = randomUUID()
-
-    let cart = {
-
-        id: ID,
-        products: []
-    
+router.post("/api/carts/", async (req, res) => {
+    try {
+        const cart = await cartManager.createCart();
+        res.send("Carrito creado");
+    } catch (error) {
+        console.error("Error al crear el carrito:", error);
+        res.status(500).send("Error al crear el carrito");
     }
+});
 
-    parsedCart.push(cart)
-    let data = JSON.stringify(parsedCart)
-    writeFileSync(pathCart, data, null)
-
-    res.send("Carrito creado")
-})
-
-router.get("/api/carts/:cid/", (req, res) => {
-
-    let id = req.params.cid
-    let carrito = fs.readFileSync(pathCart, "utf-8")
-    let parsedCart = JSON.parse(carrito)
-
-    let finalCart = parsedCart.find((cart) => cart.id === id)
-    let data = JSON.stringify(finalCart)
-
-
-    res.send(data)
-
-
-})
-router.post("/api/carts/:cid/product/:pid", (req,res) => {
-
-    let id = req.params.cid;
-    let productId = req.params.pid;
-    let productToAdd = req.body;
-
-    let carrito = fs.readFileSync(pathCart, "utf-8");
-    let parsedCart = JSON.parse(carrito);
-
-    let finalCart = parsedCart.find((cart) => cart.id === id);
-
-    if (finalCart) {
-        let existingProduct = finalCart.products.find((product) => product.id === productId);
-
-        if (existingProduct) {
-            existingProduct.quantity += productToAdd.quantity;
-        } else {
-            finalCart.products.push({
-                id: productId,
-                quantity: productToAdd.quantity
-            });
-        }
-
-        let data = JSON.stringify(parsedCart);
-        writeFileSync(pathCart, data, null);
-
-        res.send(`Producto ${productId} agregado al carrito ${id}`);
-    } else {
-       
-        res.status(404).send("Carrito no encontrado");
+router.get("/api/carts/:cid/", async (req, res) => {
+    try {
+        const cartId = req.params.cid;
+        const cart = await cartManager.getCartById(cartId);
+        res.json(cart);
+    } catch (error) {
+        console.error("Error al obtener el carrito:", error);
+        res.status(500).send("Error al obtener el carrito");
     }
+});
 
-})
+router.post("/api/carts/:cid/product/:pid", async (req, res) => {
+    try {
+        const cartId = req.params.cid;
+        const productId = req.params.pid;
+        const { quantity } = req.body;
+
+        await cartManager.addProduct(cartId, productId, quantity);
+
+        res.send(`Producto ${productId} agregado al carrito ${cartId}`);
+    } catch (error) {
+        console.error("Error al agregar el producto al carrito:", error);
+        res.status(500).send("Error al agregar el producto al carrito");
+    }
+});
 
 export default router
