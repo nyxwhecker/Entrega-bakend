@@ -7,15 +7,17 @@ import ProductManager from "../dao/services/productManager.js"
 const productManager = new ProductManager()
 const router = Router()
 
-router.get("/all", (req,res)=> {
-
-  let limit = req.query
-  let data = productManager.getAll(limit)
-
-  res.json({data})
-
-
-})
+router.get("/all", async (req, res) => {
+    try {
+      const { limit } = req.query;
+      
+      const data = await productManager.getAll(limit);
+    
+      res.json(data);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  });
 
 router.get("/api/products/:pid/", async (req, res) => {
   try {

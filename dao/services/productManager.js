@@ -6,9 +6,45 @@ export default class ProductManager {
         console.log("Trabajando con productManager")
     }
 
-    getAll = async (limit) => {
-        let result = await productsModel.find().limit(limit)
-        return result
+    getAll = async (page = 1, limit = 10, query = {}, sort = '') => {
+        page = parseInt(page) || 1;
+        limit = parseInt(limit) || 10;
+    
+        const skip = (page - 1) * limit;
+    
+        let sortOptions = {};
+        if (sort === 'asc' || sort === 'desc') {
+            sortOptions.price = sort === 'asc' ? 1 : -1;
+        }
+    
+        const [result, totalDocs] = await Promise.all([
+            productsModel.find(query).skip(skip).limit(limit).sort(sortOptions),
+            productsModel.countDocuments(query)
+        ]);
+    
+        const totalPages = Math.ceil(totalDocs / limit);
+    
+        const prevPage = page > 1 ? page - 1 : null;
+        const nextPage = page < totalPages ? page + 1 : null;
+    
+        const hasPrevPage = prevPage !== null;
+        const hasNextPage = nextPage !== null;
+    
+        const prevLink = hasPrevPage ? `/api/products?page=${prevPage}&limit=${limit}` : null;
+        const nextLink = hasNextPage ? `/api/products?page=${nextPage}&limit=${limit}` : null;
+    
+        return {
+            status: "success",
+            payload: result,
+            totalPages,
+            prevPage,
+            nextPage,
+            page,
+            hasPrevPage,
+            hasNextPage,
+            prevLink,
+            nextLink
+        };
     }
     getById = async (id) => {
         let result = await productsModel.findById(id)
