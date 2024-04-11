@@ -7,6 +7,13 @@
 </head>
 <body>
     <h1>Productos</h1>
+    {{#if user}}
+        <p>Bienvenido, {{user.first_name}} {{user.last_name}}!</p>
+        <p>Email: {{user.email}}</p>
+        <p>Edad: {{user.age}}</p>
+    {{else}}
+        <p>Bienvenido, invitado!</p> 
+    {{/if}}
     <div id="product-list">
         {{#each products}}
             <div class="product">
@@ -20,5 +27,6 @@
 
     <script src="/public/js/productsView.js"></script>
     <script src="/socket.io/socket.io.js"></script>
+    
 </body>
 </html>
