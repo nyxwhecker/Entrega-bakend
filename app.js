@@ -1,18 +1,21 @@
 import express from "express";
 import path from "path";
-import productsRouter from "./routes/productsRouter.js";
-import cartRouter from "./routes/cartRouter.js";
 import handlebars from "express-handlebars";
 import { Server } from "socket.io";
-//import mongoose from "mongoose";
-import viewsRouter from "./routes/views.router.js";
 import session from "express-session";
 import connectDb from "./config/database.js";
 import FileStore from "session-file-store";
 import MongoStore from "connect-mongo";
+import initilizePassport from "./config/passport.config.js";
+import passport from "passport";
+
+import productsRouter from "./routes/productsRouter.js";
+import cartRouter from "./routes/cartRouter.js";
+import viewsRouter from "./routes/views.router.js";
+import sessionsRouter from "./routes/sessions.router.js"; 
 
 const app = express();
-const port = 8080;
+const port = 27017;
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const fileStorage = FileStore(session);
 
@@ -26,6 +29,7 @@ app.set("public", path.join(__dirname, "public"));
 app.engine("handlebars", handlebars.engine());
 app.use(express.json());
 app.use(express.static("public"));
+
 app.use(
   session({
     store: new MongoStore({
@@ -37,6 +41,10 @@ app.use(
     saveUninitialized:false
   })
 );
+
+initilizePassport();
+app.use(passport.initialize());
+app.use(passport.session());
 
 //middleware auth
 function auth(req, res, next) {
@@ -51,6 +59,7 @@ function auth(req, res, next) {
 app.use("/api/products", productsRouter);
 app.use("/api/carts", cartRouter);
 app.use("/", viewsRouter);
+app.use("/api/sessions", sessionsRouter);
 
 app.get("/", (req, res) => {
   res.status(200).send("<h1>hola</h1>");
@@ -98,20 +107,11 @@ app.get("/privado", auth, (req, res) => {
   res.send("estass en el mejor lugar");
 });
 
-//const connectMongoDB = async () => {
-//  const DB_URL =
-//    "mongodb://127.0.0.1:27017/ecommerce?retryWrites=true&w=majority";
-//  try {
-//    await mongoose.connect(DB_URL);
-//    console.log("conectado a mongoDB");
-//  } catch (error) {
-//    console.error("no se pudo conectar a la DB", error);
-//    process.exit();
-//  }
-//};
-
-//connectMongoDB();
-
 const server = app.listen(port, () => console.log("Listening in", port));
 const io = new Server(server);
 connectDb();
+
+
+//Client ID: Iv1.c169df1cd6456c66
+
+//2126729e4c12c0312ae1d67e9d51ab6297ebbca6
