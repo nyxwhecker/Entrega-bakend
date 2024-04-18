@@ -104,7 +104,7 @@ router.get(
 //reustaurar passwprd
 router.post('/restore', async (req, res) => {
   const { email, password } = req.body;
-  // validar si recibo los datos de arriba
+  
   if (!email || !password) {
     return res.status(400).json({ status: "error", message: "Faltan datos de usuario" });
   }

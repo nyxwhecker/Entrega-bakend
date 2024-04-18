@@ -39,7 +39,6 @@ passport.use(
   )
 );
 
-//estrategia local para dsp
 passport.use(
     "login",
     new LocalStrategy(
@@ -63,20 +62,19 @@ passport.use(
     "github",
     new GitHubStrategy(
       {
-        clientID: "Iv1.c169df1cd6456c66",//id de la app en github
-        clientSecret: "2126729e4c12c0312ae1d67e9d51ab6297ebbca",//clave secreta de github
-        callbackURL: "http://localhost:27017/api/sessions/githubcallback",//url callback de github
+        clientID: "Iv1.c169df1cd6456c66",
+        clientSecret: "2126729e4c12c0312ae1d67e9d51ab6297ebbca",
+        callbackURL: "http://localhost:27017/api/sessions/githubcallback",
       },
       async (accessToken, refreshToken, profile, done) => {
         try {
-          console.log(profile);//obtenemos el objeto del perfil
-          //buscamos en la db el email
+          console.log(profile);
           const user = await userService.findOne({
             email: profile._json.email,
           });
-          //si no existe lo creamos
+          
           if (!user) {
-            //contruimos el objeto según el modelo (los datos no pertenecientes al modelo lo seteamos por default)
+           
             const newUser = {
               first_name: profile._json.name,
               last_name: "",
@@ -84,7 +82,7 @@ passport.use(
               email: profile._json.email,
               password: "",
             };
-            //guardamos el usuario en la database
+          
             let createdUser = await userService.create(newUser);
             done(null, createdUser);
           } else {
