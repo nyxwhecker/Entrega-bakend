@@ -3,11 +3,24 @@ import local from 'passport-local'
 import GitHubStrategy from "passport-github2";
 import userModel from '../dao/models/userModel.js'
 import {createHash, isValidPassword} from '../utils.js'
+import jwt from "passport-jwt";
 
-const LocalStrategy= local.Strategy
+const LocalStrategy= local.Strategy;
+const JWTStrategy = jwt.Strategy;
+const ExtractJWT = jwt.ExtractJwt;
 
-const initilizePassport= ()=>{
-passport.use(
+const initilizePassport= () => {
+ //funcion extraer cookies
+ const cookieExtractor = (req) => {
+  let token = null;
+  if (req && req.cookies) {
+      token = req.cookies["practica-integradora"];
+  }
+  return token;
+};
+
+ //registro local
+  passport.use(
     'register', 
     new LocalStrategy(
         {passReqToCallback:true, usernameField:"email"},
@@ -39,13 +52,14 @@ passport.use(
   )
 );
 
+// inicio sesion local
 passport.use(
     "login",
     new LocalStrategy(
         { usernameField: "email"},
         async (username, password, done) => {
             try{
-                const user = await userService.findOne({ email: username});
+                const user = await userModel.findOne({ email: username});
                 if(!user) return done(null, false);
                 const valid = isValidPassword(user, password);
                 if(!valid) return done(null, false);
@@ -58,6 +72,7 @@ passport.use(
     )
 ); 
 
+//autenticacion github
 passport.use(
     "github",
     new GitHubStrategy(
@@ -95,17 +110,32 @@ passport.use(
     )
 );
 
-passport.serializeUser((user,done)=>{
-    done(null,user)
-})
-passport.deserializeUser(async(id, done)=>{
-    try{
-        const user = await userModel.findById(id)
-        done(null, user);
-    } catch (error) {
-        done(error)
-    }
-})
+
+
+passport.use(
+  "jwt",
+  new JWTStrategy(
+      {
+          jwtFromRequest: ExtractJWT.fromExtractors([cookieExtractor]),
+          secretOrKey: "practica-integradora",
+      },
+      async (jwt_payload, done) => {
+          try {
+              const user = await userModel.findById(jwt_payload.userId);
+              if (!user) {
+                  return done(null, false);
+              }
+              
+              jwt_payload.role = user.role;
+
+              return done(null, jwt_payload);
+          } catch (error) {
+              return done(error);
+          }
+      }
+  )
+);
+
 }
 
 export default initilizePassport

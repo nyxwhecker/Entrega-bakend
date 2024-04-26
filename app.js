@@ -9,7 +9,11 @@ import MongoStore from "connect-mongo";
 import initilizePassport from "./config/passport.config.js";
 import passport from "passport";
 
+
 import productsRouter from "./routes/productsRouter.js";
+import categoryRouter from "./routes/category.router.js";
+import userRouter from "./routes/user.router.js";
+import cookieParser from "cookie-parser";
 import cartRouter from "./routes/cartRouter.js";
 import viewsRouter from "./routes/views.router.js";
 import sessionsRouter from "./routes/sessions.router.js"; 
@@ -22,13 +26,18 @@ const fileStorage = FileStore(session);
 const DBURL = `mongodb://127.0.0.1:27017/ecommerce?retryWrites=true&w=majority`;
 
 //middleware
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "handlebars");
 app.use(express.urlencoded({ extended: true }));
-app.set("public", path.join(__dirname, "public"));
-app.engine("handlebars", handlebars.engine());
 app.use(express.json());
-app.use(express.static("public"));
+
+app.use(cookieParser())
+initilizePassport();
+app.use(passport.initialize());
+app.use(passport.session());
+
+app.use(express.static(__dirname + "/public"));
+app.set("views", __dirname + "/views");
+app.set("view engine", "handlebars");
+app.engine("handlebars", handlebars.engine());
 
 app.use(
   session({
@@ -42,9 +51,7 @@ app.use(
   })
 );
 
-initilizePassport();
-app.use(passport.initialize());
-app.use(passport.session());
+
 
 //middleware auth
 function auth(req, res, next) {
@@ -60,9 +67,12 @@ app.use("/api/products", productsRouter);
 app.use("/api/carts", cartRouter);
 app.use("/", viewsRouter);
 app.use("/api/sessions", sessionsRouter);
+app.use("/api", categoryRouter);
+app.use("/api", userRouter);
+
 
 app.get("/", (req, res) => {
-  res.status(200).send("<h1>hola</h1>");
+  res.render("index");
 });
 
 
@@ -108,6 +118,7 @@ app.get("/privado", auth, (req, res) => {
 });
 
 const server = app.listen(port, () => console.log("Listening in", port));
+
 const io = new Server(server);
 connectDb();
 

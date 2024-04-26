@@ -2,7 +2,9 @@ import { Router } from "express";
 import userModel from "../dao/models/userModel.js";
 import { createHash, isValidPassword } from "../utils.js";
 import passport from "passport";
+
 const router = Router();
+const sessionsRouter = Router();
 
 /* router.post("/register", async (req, res) => {
 
@@ -25,6 +27,15 @@ const router = Router();
   console.log(result);
   res.status(201).send({ staus: "success", payload: result });
 }); */
+
+sessionsRouter.get("/current", (req, res) => {
+  const currentUser = req.session.user; // Obtener el usuario de la sesión
+  if (currentUser) {
+    res.status(200).send(currentUser); // Enviar información del usuario si está autenticado
+  } else {
+    res.status(401).send("No hay sesión activa"); // Enviar error si no hay sesión activa
+  }
+});
 
 router.post('/register', passport.authenticate('register', {failureRedirect:'/failregister'}),
 async (req, res)=> {

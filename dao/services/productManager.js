@@ -67,4 +67,25 @@ export default class ProductManager {
         return result
     }
 
+    
+  getAllProductsWithCategories = async () => {
+  
+    try {
+      const products = await productsModel.find().populate("category");
+      return products;
+    } catch (error) {
+      console.log("Error  al obtener todos lo productos");
+    }
+  };
+
+  //paginate
+  getPaginatedProducts = async (page = 1, limit = 10) => {
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+    };
+    const products = await productsModel.paginate({}, options);
+    return products;
+  };
+
 }
